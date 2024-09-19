@@ -1,0 +1,42 @@
+CREATE DATABASE IF NOT EXISTS enderxxx;
+use enderxxx;
+
+
+CREATE TABLE IF NOT EXISTS OriginMsg
+(
+    id BIGINT PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS MirrorMsg(
+     id BIGINT PRIMARY KEY
+    ,mirror_to BIGINT, FOREIGN KEY(mirror_to) REFERENCES OriginMsg(id)
+);
+
+CREATE TABLE IF NOT EXISTS Chats(
+    id BIGINT PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS Groups (
+    id BIGINT PRIMARY KEY, FOREIGN KEY (id) REFERENCES Chats(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Channels(
+    id BIGINT PRIMARY KEY, FOREIGN KEY (id) REFERENCES Chats(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Users(
+     id BIGINT PRIMARY KEY
+    ,isbot TINYINT(1)
+);
+
+CREATE TABLE IF NOT EXISTS ChatAdmins(
+     chat_id BIGINT, FOREIGN KEY(chat_id) REFERENCES Chats(id)
+    ,id BIGINT PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS Sync(
+     id Int PRIMARY KEY NOT NULL
+    ,channel_id BIGINT, FOREIGN KEY (channel_id) REFERENCES Channels(id)
+    ,group_id BIGINT, FOREIGN KEY(group_id) REFERENCES `Groups`(id)
+    ,admin_id BIGINT, FOREIGN KEY(admin_id) REFERENCES ChatAdmins(id)
+);

@@ -1,0 +1,11 @@
+.idea/
+
+node_modules/
+
+require/*/
+media/*
+
+token
+db.config.json
+
+*test*
