@@ -27,9 +27,6 @@ const SQLfunctions = {
         let [rows] = await pool.query('SELECT COUNT(*) as count FROM Sync')
         return rows[0].count;
     }
-    ,recordUser: function(userid, isbot){
-        return pool.query( 'INSERT INTO Users(id, isbot) SELECT ? , ? WHERE NOT EXISTS (SELECT 1 FROM Users WHERE id = ?)', [userid, isbot, userid] )
-    }
     ,findSyncviaChannels: async function (channel)
     {
         let [rows] = await pool.query('SELECT * FROM Sync WHERE channel = ?',
@@ -53,6 +50,16 @@ const SQLfunctions = {
         {
             throw new Error('根据会话id查询频道信息出错');
         }
+    }
+    , searchCommonChannels(uid) {
+        let [rows] = pool.query('SELECT channels.id, title FROM Chats\n' +
+            '    JOIN Channels ON Chats.id = Channels.id\n' +
+            '    JOIN Chatadmins ON Chats.id = Chatadmins.chat_id\n' +
+            '    WHERE Chatadmins.id = ?', [uid]);
+        return rows;
+    }
+    ,recordUser: function(userid, isbot){
+        return pool.query( 'INSERT INTO Users(id, isbot) SELECT ? , ? WHERE NOT EXISTS (SELECT 1 FROM Users WHERE id = ?)', [userid, isbot, userid] )
     }
     ,async recordChat(id, type) {
         // const channelTypes = ['channel'];

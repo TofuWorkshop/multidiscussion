@@ -1,10 +1,10 @@
+import {SQLfunctions} from "./IO.js";
+
 import {Bot, session} from "grammy";
 import {Menu} from "@grammyjs/menu";
+import {chatMembers} from "@grammyjs/chat-members";
 
 import fs from "fs";
-
-import {SQLfunctions} from "./IO.js";
-import {chatMembers} from "@grammyjs/chat-members";
 
 const bot = new Bot(fs.readFileSync('token','utf-8'));
 // bot.use(session());
@@ -151,9 +151,15 @@ bot.api.setMyCommands([
 
 });
 
+let sync_menu = new Menu('4sync');
+bot.use(sync_menu);
 bot.command("sync",(ctx) => {
     let menu = new Menu('channels_common');
-    SQLfunctions.searchCommonChannels();
+    let rows = SQLfunctions.searchCommonChannels();
+    for (let i = 0; i <rows.length; i++) {
+        menu.text(rows[i].title).row();
+    }
+    ctx.reply("选择频道",{reply_markup: sync_menu});
 })
 
 bot.command("members", async(ctx) => {
