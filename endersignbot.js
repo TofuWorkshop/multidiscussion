@@ -57,11 +57,6 @@ bot.on('my_chat_member', async (ctx) => {
      */
     if(botAddingStatus.includes(new_status))
     {
-        if(ctx.myChatMember.new_chat_member.status === "administrator")
-            SQLfunctions.updateChatAdmins(ctx.chat.id,
-                (await ctx.getChatAdministrators()).map( m => m.user.id)
-            )
-
         const info = `进入新会话，会话id${ctx.chat.id},类型：+${ctx.chat.type}`;
         ctx.api.sendMessage(processer.id, info)
             .then()
@@ -69,10 +64,18 @@ bot.on('my_chat_member', async (ctx) => {
 
         SQLfunctions.recordChat(ctx.chat.id, ctx.chat.type)
             .then(
-                ()=> console.log('已记录会话')
+                ()=> console.log(`已记录会话, 会话类型${ctx.chat.type}`)
             ).catch(
             e => console.error('记录会话失败: ', e.message, '\n', e.stack)
         )
+
+        // if((await bot.api.getChat(ctx.chat.id)).linked_chat_id)
+
+        //如果机器人是管理员，记录/更新群管理员
+        if(ctx.myChatMember.new_chat_member.status === "administrator")
+            SQLfunctions.updateChatAdmins(ctx.chat.id,
+                (await ctx.getChatAdministrators()).map( m => m.user.id)
+            )
     }
     /** 离群事件
      * 从数据库移出群聊
@@ -115,6 +118,11 @@ bot.on("chat_member", async (ctx, next) => {
 //可以确定机器人在该频道
 bot.on('channel_post', async (ctx) => {
     console.log('监听到频道消息，会话id'+ctx.chat.id);
+    console.log('关联评论区id：' +
+        (await bot.api.getChat(ctx.chat.id)).linked_chat_id);
+
+    return;
+
     const chat_id = ctx.chat.id;
     if(!await SQLfunctions.checkChannelRecorded(chat_id))
         SQLfunctions.addChannel(chat_id)
@@ -173,6 +181,7 @@ bot.command("members", async(ctx) => {
 
 bot.command("start", (ctx)=>{
     SQLfunctions.recordUser(ctx.message.from.id, ctx.message.from.is_bot);
+    console.log('已记录用户');
     ctx.reply("你谁啊ban了。");
 })
 
@@ -195,7 +204,7 @@ bot.command('status',async (ctx)=>{
 
 /*** ********************* 测试区 *********************** ***/
 
-bot.start({allowed_updates:["my_chat_member", "chat_member", "message"]});
+bot.start({allowed_updates:["my_chat_member", "chat_member", "message", "channel_post"]});
 
 console.log('机器人复活');
 

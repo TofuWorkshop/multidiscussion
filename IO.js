@@ -74,7 +74,7 @@ const SQLfunctions = {
     }
     ,addChatAdmins: function(chat_id, admins_id){
         //可能会超过最大尺寸
-        return pool.query(`INSERT INTO ChatAdmins(chat_id, id) VALUES 
+        return pool.query(`INSERT INTO ChatAdmins(chat_id, admin_id) VALUES 
                             ${utilities.strCartesianProduct(`(${chat_id},{})`, admins_id).join()}`);
     }
     ,async updateChatAdmins(chat_id, admins_id) {
@@ -87,7 +87,7 @@ const SQLfunctions = {
     }
     ,removeChatAdmins: function(chat_id, admins_id)
     {
-        return pool.query('DELETE FROM ChatAdmins WHERE chat_id = ? AND id in (?)', [chat_id, admins_id]);
+        return pool.query('DELETE FROM ChatAdmins WHERE chat_id = ? AND admin_id in (?)', [chat_id, admins_id]);
     }
     ,removeMyChat: function (chat_id)
     {
